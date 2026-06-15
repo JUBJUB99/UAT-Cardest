@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardestCo — Shop</title>
+<style>
+  /* ── Dark theme (default) — matches CardestCo dashboard dark mode ── */
+  :root {
+    --bg:      #0d0d14;
+    --bg2:     #13131e;
+    --bg3:     #1c1c2a;
+    --bg4:     #22223200;
+    --border:  rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.11);
+    --text:    #eeeeff;
+    --text2:   #9896c0;
+    --text3:   #58567a;
+    --accent:  #7c6dfa;
+    --accent2: #a594ff;
+    --red:     #f87171;
+    --green:   #34d399;
+    --yellow:  #fbbf24;
+    --radius:  14px;
+    --radius-sm: 9px;
+    --header-bg: rgba(13,13,20,0.96);
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    --input-bg: #1c1c2a;
+  }
+
+  /* ── Light theme — matches CardestCo dashboard light mode ── */
+  html.light {
+    --bg:      #f0ede8;
+    --bg2:     #faf8f5;
+    --bg3:     #f0ede7;
+    --border:  rgba(0,0,0,0.07);
+    --border2: rgba(0,0,0,0.11);
+    --text:    #1a1830;
+    --text2:   #6a6880;
+    --text3:   #a8a6be;
+    --header-bg: rgba(240,237,232,0.96);
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --input-bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background .25s, color .25s;
+  }
+
+  /* ── Marquee announcement bar ── */
+  .marquee-bar {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 7px 0;
+    position: sticky;
+    top: 0;
+    z-index: 101;
+  }
+  .marquee-track {
+    display: inline-block;
+    animation: marquee-scroll 22s linear infinite;
+  }
+  .marquee-track span {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+    padding: 0 48px;
+  }
+  .marquee-track span::before { content: '📸 '; }
+  @keyframes marquee-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--header-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 13px 20px;
+    position: sticky;
+    top: 33px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #fff;
+    box-shadow: 0 2px 8px rgba(124,109,250,0.4);
+    flex-shrink: 0;
+  }
+  .shop-name {
+    font-size: 15px; font-weight: 700;
+    color: var(--text); letter-spacing: -0.2px;
+  }
+  .shop-contact { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  .badge-count {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 4px 11px;
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  /* Theme toggle button */
+  .btn-theme {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, border-color .2s, transform .15s;
+    flex-shrink: 0;
+  }
+  .btn-theme:hover { border-color: var(--accent); transform: scale(1.08); }
+
+  /* ── Search bar ── */
+  .search-bar {
+    padding: 11px 20px;
+    display: flex;
+    gap: 8px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    transition: background .25s;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 140px;
+    background: var(--input-bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 13px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color .15s, background .25s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+
+  select.filter-sel {
+    background: var(--input-bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .15s, background .25s;
+  }
+  select.filter-sel:focus { border-color: var(--accent); }
+
+  /* ── Cards grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 14px;
+    padding: 18px 20px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .2s, transform .15s, box-shadow .2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--card-shadow);
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(124,109,250,0.18);
+  }
+  .card-img {
+    width: 100%; aspect-ratio: 3/4;
+    object-fit: cover;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; color: var(--text3);
+    flex-shrink: 0;
+  }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .card-body { padding: 10px 11px; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .card-name { font-size: 12px; font-weight: 700; line-height: 1.35; color: var(--text); }
+  .card-brand { font-size: 10px; color: var(--text3); font-weight: 500; }
+  .card-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 7px;
+  }
+  .card-stock { font-size: 10px; color: var(--text2); }
+  .card-price { font-size: 13px; font-weight: 700; color: var(--red); }
+  .btn-reserve {
+    width: 100%; margin-top: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 8px;
+    padding: 8px; color: #fff;
+    font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s;
+    letter-spacing: 0.1px;
+  }
+  .btn-reserve:hover { opacity: .87; }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center; padding: 80px 20px;
+    color: var(--text3); font-size: 14px;
+    grid-column: 1/-1;
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ── Loading ── */
+  .loading {
+    text-align: center; padding: 80px 20px; color: var(--text3);
+    font-size: 13px;
+    background: var(--bg); min-height: 100vh;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Error ── */
+  .error-page {
+    min-height: 100vh; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 40px;
+    color: var(--text3); background: var(--bg);
+  }
+  .error-page .icon { font-size: 56px; margin-bottom: 16px; }
+  .error-page h2 { font-size: 20px; color: var(--text2); margin-bottom: 8px; }
+  .error-page p { font-size: 13px; line-height: 1.6; }
+
+  /* ── Note bar ── */
+  .note-bar {
+    text-align: center; padding: 10px 20px;
+    font-size: 11px; color: var(--text3);
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  /* ── Modal overlay ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000; align-items: center; justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 18px;
+    padding: 24px;
+    width: 100%; max-width: 400px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; }
+  .modal-close {
+    background: none; border: none;
+    font-size: 22px; color: var(--text3);
+    cursor: pointer; line-height: 1;
+  }
+  .card-info-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px; margin-bottom: 16px;
+    font-size: 12px; color: var(--text2);
+    line-height: 1.6;
+  }
+  .form-group { margin-bottom: 12px; }
+  .form-label {
+    display: block; font-size: 11px;
+    color: var(--text3); margin-bottom: 5px; font-weight: 500;
+  }
+  .req { color: var(--red); }
+  .form-input {
+    width: 100%; background: var(--input-bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px; color: var(--text);
+    font-size: 13px; outline: none;
+    transition: border-color .15s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text3); }
+  .form-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .btn {
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: opacity .15s;
+    border: 1px solid var(--border2);
+    background: var(--bg3); color: var(--text2);
+  }
+  .btn:hover { opacity: .8; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; color: #fff; flex: 2; }
+  .btn-cancel { flex: 1; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 30px; padding: 10px 20px;
+    font-size: 13px; color: var(--text);
+    z-index: 9999; opacity: 0;
+    transition: opacity .3s;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── Gallery Modal ── */
+  .gallery-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.93);
+    z-index: 2000; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .gallery-overlay.open { display: flex; }
+  .gallery-main {
+    position: relative; width: 100%; max-width: 480px;
+    display: flex; align-items: center; justify-content: center;
+    flex: 1; padding: 16px;
+  }
+  .gallery-main img {
+    max-width: 100%; max-height: 70vh;
+    object-fit: contain; border-radius: 12px;
+  }
+  .gallery-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.1); border: none;
+    border-radius: 50%; width: 40px; height: 40px;
+    color: #fff; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+  }
+  .gallery-nav:hover { background: rgba(255,255,255,0.2); }
+  .gallery-nav.prev { left: 8px; }
+  .gallery-nav.next { right: 8px; }
+  .gallery-thumbs {
+    display: flex; gap: 8px; padding: 12px 16px;
+    overflow-x: auto; max-width: 480px; width: 100%;
+  }
+  .gallery-thumb {
+    width: 56px; height: 56px; flex-shrink: 0;
+    border-radius: 7px; overflow: hidden;
+    border: 2px solid transparent; cursor: pointer;
+    transition: border-color .15s;
+  }
+  .gallery-thumb.active { border-color: var(--accent); }
+  .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-header {
+    width: 100%; max-width: 480px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+  }
+  .gallery-title { font-size: 13px; font-weight: 600; color: #fff; }
+  .gallery-counter { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .gallery-close {
+    background: none; border: none;
+    font-size: 24px; color: rgba(255,255,255,0.7);
+    cursor: pointer; line-height: 1;
+  }
+  .gallery-reserve-btn {
+    margin: 0 16px 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px;
+    padding: 12px 24px; color: #fff;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; width: calc(100% - 32px); max-width: 448px;
+  }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: repeat(2, 1fr); padding: 12px; gap: 10px; }
+    .header { padding: 11px 14px; }
+    .search-bar { padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading State -->
+<div id="loading-view" class="loading">
+  <div class="spinner"></div>
+  กำลังโหลดสต็อก...
+</div>
+
+<!-- Error State -->
+<div id="error-view" class="error-page" style="display:none">
+  <div class="icon">🔒</div>
+  <h2>ไม่พบร้านค้า</h2>
+  <p>ลิงก์นี้ไม่ถูกต้องหรือหมดอายุแล้ว<br>กรุณาขอลิงก์ใหม่จากร้านค้า</p>
+</div>
+
+<!-- Main App -->
+<div id="app" style="display:none">
+  <!-- Marquee Announcement Bar -->
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <span>สามารถแคปรูปและติดต่อพ่อค้าแม่ค้า เพื่อสั่งซื้อสินค้า</span><span>สามารถแคปรูปและติดต่อพ่อค้าแม่ค้า เพื่อสั่งซื้อสินค้า</span><span>สามารถแคปรูปและติดต่อพ่อค้าแม่ค้า เพื่อสั่งซื้อสินค้า</span><span>สามารถแคปรูปและติดต่อพ่อค้าแม่ค้า เพื่อสั่งซื้อสินค้า</span>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-logo">
+      <div class="logo-mark">C</div>
+      <div>
+        <div class="shop-name" id="shop-name">ร้านค้า</div>
+        <div class="shop-contact" id="shop-contact"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="badge-count" id="stock-count">0 รายการ</div>
+      <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <input class="search-input" id="search-input" placeholder="🔍 ค้นหาการ์ด..." oninput="renderCards()">
+    <select class="filter-sel" id="brand-filter" onchange="renderCards()">
+      <option value="">ทุกแบรนด์</option>
+    </select>
+  </div>
+
+  <div class="grid" id="cards-grid"></div>
+
+  <div class="note-bar" id="shop-note"></div>
+</div>
+
+
+<!-- Gallery Modal -->
+<div class="gallery-overlay" id="gallery-modal">
+  <div class="gallery-header">
+    <div>
+      <div class="gallery-title" id="gallery-card-name"></div>
+      <div class="gallery-counter" id="gallery-counter"></div>
+    </div>
+    <button class="gallery-close" onclick="closeGallery()">×</button>
+  </div>
+  <div class="gallery-main">
+    <img id="gallery-main-img" src="" alt="">
+    <button class="gallery-nav prev" id="gallery-prev" onclick="galleryNav(-1)">‹</button>
+    <button class="gallery-nav next" id="gallery-next" onclick="galleryNav(1)">›</button>
+  </div>
+  <div class="gallery-thumbs" id="gallery-thumbs"></div>
+  <button class="gallery-reserve-btn" id="gallery-reserve-btn" onclick="galleryReserve()">📦 จองสินค้านี้</button>
+</div>
+
+<!-- Reserve Modal -->
+<div class="modal-overlay" id="modal-reserve">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📦 จองสินค้า</span>
+      <button class="modal-close" onclick="closeReserve()">×</button>
+    </div>
+    <div class="card-info-box" id="reserve-info"></div>
+    <div class="form-group">
+      <label class="form-label">ชื่อผู้ติดต่อ <span class="req">*</span></label>
+      <input class="form-input" id="res-name" type="text" placeholder="ชื่อ-นามสกุล">
+    </div>
+    <div class="form-group">
+      <label class="form-label">เบอร์โทรศัพท์</label>
+      <input class="form-input" id="res-phone" type="tel" placeholder="08x-xxx-xxxx">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Line ID</label>
+      <input class="form-input" id="res-line" type="text" placeholder="@lineid">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Facebook</label>
+      <input class="form-input" id="res-facebook" type="text" placeholder="ชื่อ Facebook">
+    </div>
+    <div class="form-group">
+      <label class="form-label">จำนวนที่ต้องการ</label>
+      <input class="form-input" id="res-qty" type="number" min="1" value="1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">หมายเหตุ</label>
+      <input class="form-input" id="res-note-input" type="text" placeholder="ข้อความเพิ่มเติม">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-cancel" onclick="closeReserve()">ยกเลิก</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitReserve()">✅ ยืนยันการจอง</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL  = 'https://gqrjpkinevobpzlgwkhc.supabase.co'
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdxcmpwa2luZXZvYnB6bGd3a2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MDE2NDcsImV4cCI6MjA5MDE3NzY0N30.uAoXxE5r7BIKRROGLPc0N6rShT2BLSg-JOs8uAyRgRQ'
+
+let shopId    = null
+let shopCards = []
+let settings  = {}
+let resCard   = null
+
+// Swipe support for gallery
+;(function() {
+  let startX = 0
+  document.getElementById('gallery-modal').addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX
+  }, { passive: true })
+  document.getElementById('gallery-modal').addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 50) galleryNav(diff > 0 ? 1 : -1)
+  }, { passive: true })
+})()
+
+async function init() {
+  const token = new URLSearchParams(window.location.search).get('shop')
+  if (!token) { showError(); return }
+
+  try {
+    // query ตรงจาก public_token column — เร็วกว่า และไม่ติด limit
+    const res  = await fetch(
+      SUPABASE_URL + '/rest/v1/shop_data?public_token=eq.' + encodeURIComponent(token) + '&select=shop_id,data&limit=1',
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON } }
+    )
+    const rows = await res.json()
+    const match = rows && rows[0]
+    if (!match) { showError(); return }
+
+    shopId    = match.shop_id
+    const d   = match.data
+    settings  = d.setupData?.publicSettings || {}
+    shopCards = (d.cards || []).filter(c => (c.stock || 0) > 0 && !c.hideFromPublic)
+
+    // Header
+    document.getElementById('shop-name').textContent    = settings.shopName || d.userInfo?.shop || 'ร้านค้า'
+    document.getElementById('shop-contact').textContent = settings.contact ? '📱 ' + settings.contact : ''
+    document.title = (settings.shopName || 'ร้านค้า') + ' — CardestCo'
+
+    const noteEl = document.getElementById('shop-note')
+    if (settings.note) { noteEl.textContent = settings.note }
+    else { noteEl.style.display = 'none' }
+
+    // Brand filter
+    const brands = [...new Set(shopCards.map(c => c.brand).filter(Boolean))]
+    const bf = document.getElementById('brand-filter')
+    brands.forEach(b => {
+      const o = document.createElement('option')
+      o.value = b; o.textContent = b
+      bf.appendChild(o)
+    })
+
+    renderCards()
+
+    document.getElementById('loading-view').style.display = 'none'
+    document.getElementById('app').style.display = 'block'
+
+  } catch(e) {
+    console.error(e)
+    showError()
+  }
+}
+
+function renderCards() {
+  const q     = document.getElementById('search-input').value.toLowerCase()
+  const brand = document.getElementById('brand-filter').value
+  const show  = settings.showPrice !== false
+  const allowR = settings.allowReserve !== false
+
+  const filtered = shopCards
+    .filter(c => !brand || c.brand === brand)
+    .filter(c => !q || (c.name||'').toLowerCase().includes(q) || (c.brand||'').toLowerCase().includes(q))
+
+  document.getElementById('stock-count').textContent = filtered.length + ' รายการ'
+
+  const grid = document.getElementById('cards-grid')
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty"><div class="icon">🃏</div>ไม่พบสินค้าที่ค้นหา</div>'
+    return
+  }
+
+  grid.innerHTML = filtered.map(card => {
+    const photos = card.photos && card.photos.length > 0 ? card.photos : (card.photo ? [card.photo] : [])
+    const mainPhoto = photos[0] || null
+    const hasMany = photos.length > 1
+    const cardIdx = shopCards.indexOf(card)
+    return `
+    <div class="card">
+      <div class="card-img" onclick="openGallery(${cardIdx})" style="cursor:pointer;position:relative">
+        ${mainPhoto
+          ? `<img src="${mainPhoto}" alt="${card.name}" loading="lazy">`
+          : '🃏'}
+        ${hasMany ? `<div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.6);border-radius:10px;padding:2px 7px;font-size:10px;color:#fff">🖼 ${photos.length}</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${card.name}</div>
+        <div class="card-brand">${card.brand||''}${card.rarity ? ' · ' + card.rarity : ''}</div>
+        <div class="card-bottom">
+          <div class="card-stock">คงเหลือ ${card.stock} ใบ</div>
+          ${show && (card.price||0) > 0
+            ? `<div class="card-price">฿${(card.price||0).toLocaleString()}</div>`
+            : ''}
+        </div>
+        ${allowR ? `<button class="btn-reserve" onclick="event.stopPropagation();openReserve(${cardIdx})">📦 จอง</button>` : ''}
+      </div>
+    </div>`
+  }).join('')
+}
+
+
+let _galleryCard  = null
+let _galleryIdx   = 0
+let _galleryPhotos = []
+
+function openGallery(idx) {
+  _galleryCard   = shopCards[idx]
+  _galleryPhotos = _galleryCard.photos && _galleryCard.photos.length > 0
+    ? _galleryCard.photos
+    : (_galleryCard.photo ? [_galleryCard.photo] : [])
+  _galleryIdx = 0
+  renderGallery()
+  document.getElementById('gallery-modal').classList.add('open')
+
+  // ถ้าไม่มีรูปเลย เปิด reserve โดยตรง
+  if (_galleryPhotos.length === 0 && settings.allowReserve !== false) {
+    closeGallery()
+    openReserve(cardJson)
+  }
+}
+
+function renderGallery() {
+  const card = _galleryCard
+  const photos = _galleryPhotos
+
+  document.getElementById('gallery-card-name').textContent = card.name
+  document.getElementById('gallery-counter').textContent =
+    photos.length > 1 ? `${_galleryIdx + 1} / ${photos.length}` : ''
+
+  const mainImg = document.getElementById('gallery-main-img')
+  mainImg.src = photos[_galleryIdx] || ''
+
+  // nav buttons
+  document.getElementById('gallery-prev').style.display = photos.length > 1 ? 'flex' : 'none'
+  document.getElementById('gallery-next').style.display = photos.length > 1 ? 'flex' : 'none'
+
+  // thumbnails
+  const thumbEl = document.getElementById('gallery-thumbs')
+  thumbEl.innerHTML = photos.map((p, i) => `
+    <div class="gallery-thumb ${i === _galleryIdx ? 'active' : ''}" onclick="galleryGoTo(${i})">
+      <img src="${p}" alt="">
+    </div>`).join('')
+
+  // reserve button
+  const resBtn = document.getElementById('gallery-reserve-btn')
+  if (resBtn) resBtn.style.display = settings.allowReserve !== false ? 'block' : 'none'
+}
+
+function galleryNav(dir) {
+  _galleryIdx = (_galleryIdx + dir + _galleryPhotos.length) % _galleryPhotos.length
+  renderGallery()
+}
+
+function galleryGoTo(idx) {
+  _galleryIdx = idx
+  renderGallery()
+}
+
+function closeGallery() {
+  document.getElementById('gallery-modal').classList.remove('open')
+}
+
+function galleryReserve() {
+  closeGallery()
+  openReserve(shopCards.indexOf(_galleryCard))
+}
+
+function openReserve(idx) {
+  resCard = typeof idx === 'number' ? shopCards[idx] : JSON.parse(idx)
+  const show = settings.showPrice !== false
+  document.getElementById('reserve-info').innerHTML = `
+    <b style="font-size:13px;color:#f1f0ff">${resCard.name}</b><br>
+    <span style="color:#9896b8">${resCard.brand||''}${resCard.rarity?' · '+resCard.rarity:''}</span>
+    ${show && (resCard.price||0) > 0 ? `<br><span style="color:#f87171;font-weight:700">฿${(resCard.price||0).toLocaleString()}</span>` : ''}
+    <br><span style="color:#5f5d80;font-size:11px">คงเหลือ ${resCard.stock} ใบ</span>
+  `
+  ;['res-name','res-phone','res-line','res-facebook','res-note-input'].forEach(id => {
+    const el = document.getElementById(id)
+    if (el) el.value = ''
+  })
+  document.getElementById('res-qty').value = 1
+  document.getElementById('modal-reserve').classList.add('open')
+}
+
+function closeReserve() {
+  document.getElementById('modal-reserve').classList.remove('open')
+}
+
+async function submitReserve() {
+  if (!resCard || !shopId) return
+  const name  = document.getElementById('res-name').value.trim()
+  const phone = document.getElementById('res-phone').value.trim()
+  const line  = document.getElementById('res-line').value.trim()
+  const qty   = parseInt(document.getElementById('res-qty').value) || 1
+  const facebook = document.getElementById('res-facebook').value.trim()
+  const note  = document.getElementById('res-note-input').value.trim()
+
+  if (!name) { showToast('⚠️ กรุณากรอกชื่อผู้ติดต่อ'); return }
+  if (!phone && !line && !facebook) { showToast('⚠️ กรุณากรอกเบอร์โทร, Line ID หรือ Facebook อย่างน้อย 1 ช่องทาง'); return }
+
+  const btn = document.getElementById('submit-btn')
+  btn.disabled = true; btn.textContent = '⏳ กำลังส่ง...'
+
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/reservations', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        shop_id:       shopId,
+        card_name:     resCard.name,
+        card_brand:    resCard.brand  || '',
+        card_price:    resCard.price  || 0,
+        qty,
+        contact_name:  name,
+        contact_phone: phone || '',
+        contact_line:  line     || '',
+        contact_facebook: facebook || '',
+        note:          note  || '',
+        status:        'pending'
+      })
+    })
+    if (!res.ok) throw new Error('failed')
+
+    closeReserve()
+    showToast('✅ จองสำเร็จ! ร้านค้าจะติดต่อกลับเร็วๆ นี้')
+
+    // ลด reserved stock ใน UI ทันที (กันจองซ้ำ)
+    const idx = shopCards.findIndex(c => c.name === resCard.name)
+    if (idx >= 0) {
+      shopCards[idx].stock = Math.max(0, (shopCards[idx].stock || 0) - qty)
+      if (shopCards[idx].stock === 0) {
+        // ถ้าหมด → เอาออกจาก list
+        shopCards.splice(idx, 1)
+      }
+    }
+    renderCards()
+
+  } catch(e) {
+    showToast('❌ เกิดข้อผิดพลาด กรุณาลองใหม่')
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ ยืนยันการจอง'
+  }
+}
+
+function showError() {
+  document.getElementById('loading-view').style.display = 'none'
+  document.getElementById('error-view').style.display   = 'flex'
+}
+
+let _toastTimer = null
+function showToast(msg) {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.classList.add('show')
+  clearTimeout(_toastTimer)
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3000)
+}
+
+// close modal on backdrop click
+document.getElementById('modal-reserve').addEventListener('click', function(e) {
+  if (e.target === this) closeReserve()
+})
+
+// ── Theme toggle ──
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light')
+  document.getElementById('btn-theme').textContent = isLight ? '🌙' : '☀️'
+  try { localStorage.setItem('cdco-theme', isLight ? 'light' : 'dark') } catch(e) {}
+}
+;(function(){
+  try {
+    const saved = localStorage.getItem('cdco-theme')
+    if (saved === 'light') {
+      document.documentElement.classList.add('light')
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('btn-theme')
+        if (btn) btn.textContent = '🌙'
+      })
+    }
+  } catch(e) {}
+})()
+
+init()
+</script>
+</body>
+</html>
